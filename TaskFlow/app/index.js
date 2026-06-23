@@ -76,8 +76,6 @@ export default function HomeScreen() {
     Toast.show({ type: 'success', text1: 'Task deleted' });
   }
 
-
-
   return (
     <View style={styles.container}>
       {/* Header */}
