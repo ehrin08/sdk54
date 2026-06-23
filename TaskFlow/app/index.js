@@ -3,6 +3,8 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { supabase } from '../lib/supabase';
+import TaskItem from '../components/TaskItem';
+import AddTaskModal from '../components/AddTaskModal';
 
 export default function HomeScreen() {
   // ── State ────────────────────────────────────────────────
@@ -74,27 +76,7 @@ export default function HomeScreen() {
     Toast.show({ type: 'success', text1: 'Task deleted' });
   }
 
-  // ── Render a single task row ─────────────────────────────
-  function renderTask({ item }) {
-    return (
-      <View style={styles.taskRow}>
-        <TouchableOpacity
-          style={styles.taskContent}
-          onPress={() => handleToggleTask(item)}
-          onLongPress={() => handleDeleteTask(item.id)}
-        >
-          <MaterialIcons
-            name={item.completed ? 'check-box' : 'check-box-outline-blank'}
-            size={24}
-            color={item.completed ? '#2E5BBA' : '#5A6472'}
-          />
-          <Text style={[styles.taskText, item.completed && styles.taskTextDone]}>
-            {item.title}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+
 
   return (
     <View style={styles.container}>
@@ -113,7 +95,13 @@ export default function HomeScreen() {
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
-        renderItem={renderTask}
+        renderItem={({ item }) => (
+          <TaskItem
+            item={item}
+            onToggle={handleToggleTask}
+            onDelete={handleDeleteTask}
+          />
+        )}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -122,6 +110,13 @@ export default function HomeScreen() {
             <Text style={styles.emptySubtext}>Tap + to add your first task</Text>
           </View>
         }
+      />
+
+      {/* Add Task Modal */}
+      <AddTaskModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSubmit={handleSubmitTask}
       />
     </View>
   );
@@ -163,32 +158,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-  taskRow: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    marginBottom: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  taskContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  taskText: {
-    fontSize: 16,
-    color: '#1F2A44',
-    flex: 1,
-  },
-  taskTextDone: {
-    textDecorationLine: 'line-through',
-    color: '#9CA3AF',
-  },
+
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
